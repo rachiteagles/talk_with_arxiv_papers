@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <style>
+        /* Spinner Styles */
+        .spinner-container {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 1000; /* Ensure the overlay is on top of other elements */
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Search Results</h1>
+        <ul class="list-group mt-4">
+            {% for paper in papers %}
+            <li class="list-group-item">
+                <h2><a href="{{ url_for('load_pdf_embeddings', index=paper.id) }}">{{ paper.title }}</a></h2>
+                <p>{{ paper.summary }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+         <!-- Pagination controls -->
+         <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('search', query=query, page=page-1) }}">&laquo; Previous</a>
+                </li>
+                {% for p in range(1, total_pages + 1) %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('search', query=query, page=p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('search', query=query, page=page+1) }}">Next &raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        <a href="/" class="btn btn-secondary mt-4">Back to search</a>
+    </div>
+    <div class="spinner-container" id="spinner-container">
+        <div class="spinner" id="spinner"></div>
+        <div class="spinner-text">Understanding the paper. please wait, this may take few minutes...</div>
+    </div>
+
+    <script>
+        // JavaScript to show the spinner on link click
+        document.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                // Only show spinner for internal links
+                if (link.hostname === window.location.hostname) {
+                    document.getElementById('spinner-container').style.display = 'block';
+                }
+            });
+        });
+    </script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

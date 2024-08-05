@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: username/flask-app:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/arxiv:latest
 
       - name: Deploy to ECS
         env:

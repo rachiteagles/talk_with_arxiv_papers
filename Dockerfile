@@ -5,5 +5,5 @@ COPY . .
 
 RUN apt-get update
 RUN pip install -r requirements.txt
-EXPOSE 5000
-CMD ["python", "app.py"]
+EXPOSE $PORT
+CMD gunicorn --workers=4 --bind 0.0.0.0:$PORT app:app

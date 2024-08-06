@@ -8,3 +8,4 @@ sentence-transformers==2.2.2
 transformers
 InstructorEmbedding
 langchain-google-genai
+gunicorn

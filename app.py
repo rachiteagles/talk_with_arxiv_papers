@@ -4,7 +4,7 @@ from langchain_community.vectorstores.faiss import FAISS
 from PyPDF2 import PdfReader
 from io import BytesIO
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.llms.bedrock import Bedrock
+from langchain_community.llms import Bedrock
 from langchain_community.embeddings import BedrockEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA

@@ -18,3 +18,4 @@ ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 EXPOSE $PORT
 
 CMD gunicorn --workers=4 --bind 0.0.0.0:$PORT app:app
+

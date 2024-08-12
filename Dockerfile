@@ -17,8 +17,6 @@ ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
 
-EXPOSE 5000
+EXPOSE $PORT
 
-ENV PORT=5000
-
-CMD ["gunicorn", "-b", "0.0.0.0:$PORT", "your_flask_app_name:app"]
+CMD gunicorn --workers=4 --bind 0.0.0.:$PORT app:app

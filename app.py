@@ -5,21 +5,19 @@ from PyPDF2 import PdfReader
 from io import BytesIO
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.llms.bedrock import Bedrock
-from langchain.embeddings import BedrockEmbeddings
+from langchain_community.embeddings import BedrockEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 import warnings, boto3, os
 
-boto3.setup_default_session(
-    aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-    aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-    region_name='us-east-1'
-)
-
 # Suppress all warnings
 warnings.filterwarnings("ignore")
 
-bedrock=boto3.client(service_name = "bedrock-runtime")
+bedrock=boto3.client(
+                    service_name = "bedrock-runtime",
+                    aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                    aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+                    region_name='us-east-1')
 bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",client=bedrock)
 
 prompt_template = """

@@ -20,7 +20,7 @@ boto3.setup_default_session(
 warnings.filterwarnings("ignore")
 
 bedrock=boto3.client(service_name = "bedrock-runtime")
-bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",client=bedrock)
+bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",client=bedrock, credentials_profile_name='default')
 
 prompt_template = """
 Human: Read the provided excerpt from the paper. Based on this excerpt, please answer the following question. 

@@ -1,11 +1,7 @@
 flask
-genai
 langchain==0.2.0
 PyPDF2
-faiss-cpu==1.7.4
+faiss-cpu
 langchain-community==0.2.0
-sentence-transformers==2.2.2
-transformers
-InstructorEmbedding
-langchain-google-genai
 gunicorn
+boto3

@@ -4,20 +4,33 @@ from langchain_community.vectorstores.faiss import FAISS
 from PyPDF2 import PdfReader
 from io import BytesIO
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceInstructEmbeddings
+from langchain.llms.bedrock import Bedrock
+from langchain.embeddings import BedrockEmbeddings
+from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
-from langchain_google_genai import GoogleGenerativeAI
-import warnings
+import warnings, boto3
 
 # Suppress all warnings
 warnings.filterwarnings("ignore")
 
-llm = GoogleGenerativeAI(model="models/text-bison-001", google_api_key='AIzaSyAclzx4NxvT7Cx9u7lyVE4lF57iiCVXxus', temperature=0.6)
+bedrock=boto3.client(service_name = "bedrock-runtime")
+bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",client=bedrock)
 
-# Initialize the model
-# model = genai.GenerativeModel('gemini-pro')
-# genai.configure(api_key='AIzaSyAclzx4NxvT7Cx9u7lyVE4lF57iiCVXxus')
-vectordb = None
+prompt_template = """
+Human: Read the provided excerpt from the paper. Based on this excerpt, please answer the following question. 
+If you dont know the answer just say that you don't know, don't try to make up the answer.
+<context>
+{context}
+</context>
+
+Question: {question}
+
+Assistant:"""
+
+PROMPT = PromptTemplate(
+    template = prompt_template, input_variables =["context","question"]
+)
+
 app = Flask(__name__)
 
 def read_pdf_from_url(pdf_url):
@@ -34,20 +47,27 @@ def read_pdf_from_url(pdf_url):
     
     return raw_text
 
-# Sample function to process a question
-def process_question(question, pdf_url):
+def get_model(model_id,model_kwargs):
+    llm=Bedrock(model_id=model_id,client=bedrock,model_kwargs=model_kwargs)
+    return llm
 
+# Sample function to process a question
+def process_question(question):
+
+    vectordb = FAISS.load_local("faiss_index",bedrock_embeddings,allow_dangerous_deserialization=True)
     retriever = vectordb.as_retriever()
 
-    chain = RetrievalQA.from_chain_type(llm=llm,
+    model_kwargs = {'max_gen_len':512}
+
+    chain = RetrievalQA.from_chain_type(llm=get_model('meta.llama3-8b-instruct-v1:0',model_kwargs),
                 chain_type='stuff',
                 retriever=retriever,
                 input_key='query',
-                return_source_documents=True)
+                return_source_documents=True,
+                chain_type_kwargs={"prompt":PROMPT})
     
     question += '. explain in very detail in at least 3 lines'
 
-    print(chain(question))
     return chain(question)['result']
 
 def search_arxiv(query, start=0, max_results=10):
@@ -110,32 +130,30 @@ def form(index):
     answer = ''
     print(question)
     pdf_url = f'https://arxiv.org/pdf/{index}.pdf'
-    answer = process_question(question, pdf_url)
+    answer = process_question(question)
     return jsonify({'answer':answer})
 
 @app.route('/search/<index>', methods = ['GET','POST'])
 def load_pdf_embeddings(index):
     pdf_url = f'https://arxiv.org/pdf/{index}.pdf'
-
     pdf_text = read_pdf_from_url(pdf_url)
-    # We need to split the text using Character Text Split such that it sshould not increse token size
+
     text_splitter = CharacterTextSplitter(
         separator = "\n",
         chunk_size = 768,
         chunk_overlap  = 200,
         length_function = len,
     )
+    
     texts = text_splitter.split_text(pdf_text)
 
-    hf = HuggingFaceInstructEmbeddings()
-    print('embeddings loaded')
-    global vectordb
+    vectordb = FAISS.from_texts(texts, bedrock_embeddings)
 
-    vectordb = FAISS.from_texts(texts, hf)
+    vectordb.save_local("faiss_index")
 
     return redirect(url_for('show_pdf', index = index))
 
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run( threaded=True, host='0.0.0.0', port=5000)

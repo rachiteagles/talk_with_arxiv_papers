@@ -19,10 +19,7 @@ boto3.setup_default_session(
 # Suppress all warnings
 warnings.filterwarnings("ignore")
 
-bedrock=boto3.client(service_name = "bedrock-runtime",
-                    aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                    aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-                    region_name='us-east-1')
+bedrock=boto3.client(service_name = "bedrock-runtime")
 bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",client=bedrock)
 
 prompt_template = """

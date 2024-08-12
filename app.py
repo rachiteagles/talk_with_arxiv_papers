@@ -4,7 +4,7 @@ from langchain_community.vectorstores.faiss import FAISS
 from PyPDF2 import PdfReader
 from io import BytesIO
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.llms.bedrock import Bedrock
+from langchain_community.llms import Bedrock
 from langchain_community.embeddings import BedrockEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
@@ -14,7 +14,7 @@ import warnings, boto3, os
 warnings.filterwarnings("ignore")
 
 bedrock=boto3.client(
-                    service_name = "bedrock-runtime",
+                    service_name = "bedrock",
                     aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
                     aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
                     region_name='us-east-1')

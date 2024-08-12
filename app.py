@@ -153,6 +153,9 @@ def load_pdf_embeddings(index):
     
     texts = text_splitter.split_text(pdf_text)
 
+    bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",client=bedrock, credentials_profile_name='default')
+
+
     vectordb = FAISS.from_texts(texts, bedrock_embeddings)
 
     vectordb.save_local("faiss_index")

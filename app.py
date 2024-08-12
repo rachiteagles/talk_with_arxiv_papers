@@ -8,7 +8,7 @@ from langchain.llms.bedrock import Bedrock
 from langchain.embeddings import BedrockEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
-import warnings, boto3
+import warnings, boto3, os
 
 # Suppress all warnings
 warnings.filterwarnings("ignore")
@@ -156,4 +156,4 @@ def load_pdf_embeddings(index):
 
 
 if __name__ == '__main__':
-    app.run( threaded=True, host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

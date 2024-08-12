@@ -18,4 +18,7 @@ ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
 
 EXPOSE 5000
-CMD ["python", "app.py"]
+
+ENV PORT=5000
+
+CMD ["gunicorn", "-b", "0.0.0.0:$PORT", "your_flask_app_name:app"]
